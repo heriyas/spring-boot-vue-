@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8;"/>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <title>Title</title>
+</head>
+<script src="../assets/js/jquery.js"></script>
+<script src="../layui/layui.all.js" charset="utf-8"></script>
+<body>
+<fieldset class="layui-elem-field layui-field-title">
+    <legend>审核信息</legend>
+</fieldset>
+<form class="layui-form" action="" id="test" lay-filter="test">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">姓名</label>
+            <div class="layui-input-inline">
+                <input type="text" id="teacher_name" name="teacher_name"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">年龄</label>
+            <div class="layui-input-inline">
+                <input type="text" id="teacher_age" name="teacher_age"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">照片<span style="color: red;">*</span></label>
+        <div class="layui-input-block">
+            <div class="layui-upload">
+                <button type="button" class="layui-btn upload-demoMore" id="btnUploadImage"><i class="layui-icon">&#xe67c;</i>上传图片</button>
+                <div class="layui-upload-list">
+                    <img class="layui-upload-img" id="teacher_photo" name="teacher_photo" style="width: 300px ; height: 200px ;border: #9F9F9F">
+                    <p id="demoText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">地址</label>
+        <div class="layui-input-block">
+            <input type="text" id="teacher_address" name="teacher_address"  autocomplete="off"  class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">出生日期</label>
+            <div class="layui-input-inline">
+                <input type="text" id="teacher_birth" name="teacher_birth"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">性别</label>
+            <div class="layui-input-inline">
+                <input type="text" id="teacher_sex" name="teacher_sex"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">手机</label>
+            <div class="layui-input-inline">
+                <input type="text" id="teacher_phone" name="teacher_phone"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">邮箱</label>
+            <div class="layui-input-inline">
+                <input type="text" id="teacher_email" name="teacher_email"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">院系或职位</label>
+            <div class="layui-input-inline">
+                <input type="text" id="teacher_faculty" name="teacher_faculty"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <button type="button" class="layui-btn" lay-submit id="btnSubmit" style="margin-left: 110px" lay-filter="btnSubmit">保存</button>
+
+</form>
+
+<script>
+    $(function () {
+        $.ajax({
+            url: '/psinfo/select/teacher',
+            type: 'POST',
+
+            dataType: "json",
+            success: function (res) {
+                layui.use('form', function () {
+                    var form = layui.form;
+                    $('#teacher_name').val(res.data.teacher_name);
+                    $('#teacher_age').val(res.data.teacher_age);
+                    $('#teacher_photo').attr('src',res.data.teacher_photo);
+                    $('#teacher_address').val(res.data.teacher_address);
+                    $('#teacher_birth').val(res.data.teacher_birth);
+                    $('#teacher_sex').val(res.data.teacher_sex);
+                    $('#teacher_phone').val(res.data.teacher_phone);
+                    $('#teacher_email').val(res.data.teacher_email);
+                    $('#teacher_faculty').val(res.data.teacher_faculty);
+                    console.log(res.data.teacher_name)
+                    form.render()
+                });
+
+            },
+            error: function (error) {
+                layer.msg('修改失败');
+            }
+
+        });
+    })
+</script>
+
+<script>
+
+    layui.use(['upload','form', 'layer'], function(){
+        var
+            upload = layui.upload
+            ,form = layui.form
+            ,layer = layui.layer;
+
+        form.render();
+
+
+        upload.render({
+            elem: '#btnUploadImage'
+            ,auto: false
+            // , multiple: true
+            , accept: 'image' //普通文件
+            // , exts: 'jpg|jpeg|png|bmp|png' //只允许上传图片
+            // , size: 2 * 1024 //限制文件大小，单位 KB
+            , field:'image' //设定文件域的字段名，默认为file,此处即为关键部分
+            , choose: function (obj) {
+                //预读本地文件示例，不支持ie8
+                obj.preview(function (index, file, result) {
+                    $('#teacher_photo').attr('src', result); //图片链接（base64）
+                });
+            }
+            , done: function (res) {
+                //如果上传失败
+                if (res.code === 500) {
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+            }
+            , error: function () {
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function () {
+                    WeChat.initImage().upload();
+                });
+            }
+        });
+
+
+        form.on('submit(btnSubmit)', function (data) {
+            var params = data.field;
+
+
+            var teacher_name = document.forms["test"]["teacher_name"].value;
+            var teacher_age = document.forms["test"]["teacher_age"].value;
+            var teacher_address = document.forms["test"]["teacher_address"].value;
+            var teacher_birth = document.forms["test"]["teacher_birth"].value;
+            var teacher_sex = document.forms["test"]["teacher_sex"].value;
+            var teacher_phone = document.forms["test"]["teacher_phone"].value;
+            var teacher_email = document.forms["test"]["teacher_email"].value;
+            var teacher_faculty = document.forms["test"]["teacher_faculty"].value;
+            var teacherinfo = {
+                teacher_name:teacher_name,
+                teacher_age:teacher_age,
+                teacher_address:teacher_address,
+                teacher_birth:teacher_birth,
+                teacher_sex:teacher_sex,
+                teacher_phone:teacher_phone,
+                teacher_email:teacher_email,
+                teacher_faculty:teacher_faculty,
+            };
+
+            var wechatForm = document.getElementById("test");
+            var formData = new FormData(wechatForm);
+
+            formData.append("data", params);
+            formData.append("teacherinfo" ,teacherinfo)
+            console.log(formData)
+            $.ajax({
+                type: 'POST',
+                url: '/psinfo/update/teacher', //请求路径
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false, // 当设置为true的时候,jquery ajax提交的时候不会序列化data，而是直接使用data
+                success: function (data) {
+                    if (data.code === 200) {
+                        // layer.msg(data.data, {icon: 1});
+                        layer.msg("保存成功");
+
+                    } else {
+                        layer.msg("保存失败");
+                    }
+
+                }
+            });
+            return false;
+        });
+    });
+
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <title>Title</title>
+</head>
+<script src="../assets/js/jquery.js"></script>
+<script src="../layui/layui.all.js" charset="utf-8"></script>
+<body>
+<fieldset class="layui-elem-field layui-field-title">
+    <legend>审核信息</legend>
+</fieldset>
+<form class="layui-form" action="" id="test" lay-filter="test">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">姓名</label>
+            <div class="layui-input-inline">
+                <input type="text" id="stu_name" name="stu_name"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">年龄</label>
+            <div class="layui-input-inline">
+                <input type="text" id="stu_age" name="stu_age"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">照片<span style="color: red;">*</span></label>
+        <div class="layui-input-block">
+            <div class="layui-upload">
+                <button type="button" class="layui-btn upload-demoMore" id="btnUploadImage"><i class="layui-icon">&#xe67c;</i>上传图片</button>
+                <div class="layui-upload-list">
+                    <img class="layui-upload-img" id="stu_photo" name="stu_photo" style="width: 300px ; height: 200px ;border: #9F9F9F">
+                    <p id="demoText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">地址</label>
+        <div class="layui-input-block">
+            <input type="text" id="stu_address" name="stu_address"  autocomplete="off"  class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">出生日期</label>
+            <div class="layui-input-inline">
+                <input type="text" id="stu_birth" name="stu_birth"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">性别</label>
+            <div class="layui-input-inline">
+                <input type="text" id="stu_sex" name="stu_sex"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">手机</label>
+            <div class="layui-input-inline">
+                <input type="text" id="stu_phone" name="stu_phone"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">邮箱</label>
+            <div class="layui-input-inline">
+                <input type="text" id="stu_email" name="stu_email"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">院系</label>
+            <div class="layui-input-inline">
+                <input type="text" id="stu_faculty" name="stu_faculty"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">班级</label>
+            <div class="layui-input-inline">
+                <input type="text" id="stu_class" name="stu_class"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <button type="button" class="layui-btn" lay-submit id="btnSubmit" style="margin-left: 110px" lay-filter="btnSubmit">保存</button>
+
+</form>
+
+<script>
+    $(function () {
+        $.ajax({
+            url: '/psinfo/select/student',
+            type: 'POST',
+
+            dataType: "json",
+            success: function (res) {
+                layui.use('form', function () {
+                    var form = layui.form;
+                    $('#stu_name').val(res.data.stu_name);
+                    $('#stu_age').val(res.data.stu_age);
+                    $('#stu_photo').attr('src',res.data.stu_photo);
+                    $('#stu_address').val(res.data.stu_address);
+                    $('#stu_birth').val(res.data.stu_birth);
+                    $('#stu_sex').val(res.data.stu_sex);
+                    $('#stu_phone').val(res.data.stu_phone);
+                    $('#stu_email').val(res.data.stu_email);
+                    $('#stu_faculty').val(res.data.stu_faculty);
+                    $('#stu_class').val(res.data.stu_class);
+                    console.log(res.data.teacher_name)
+                    form.render()
+                });
+
+            },
+        });
+    })
+</script>
+
+<script>
+
+    layui.use(['upload','form', 'layer'], function(){
+        var
+            upload = layui.upload
+            ,form = layui.form
+            ,layer = layui.layer;
+
+        form.render();
+
+
+        upload.render({
+            elem: '#btnUploadImage'
+            ,auto: false
+            // , multiple: true
+            , accept: 'image' //普通文件
+            // , exts: 'jpg|jpeg|png|bmp|png' //只允许上传图片
+            // , size: 2 * 1024 //限制文件大小，单位 KB
+            , field:'image' //设定文件域的字段名，默认为file,此处即为关键部分
+            , choose: function (obj) {
+                //预读本地文件示例，不支持ie8
+                obj.preview(function (index, file, result) {
+                    $('#stu_photo').attr('src', result); //图片链接（base64）
+                });
+            }
+            , done: function (res) {
+                //如果上传失败
+                if (res.code === 500) {
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+            }
+            , error: function () {
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function () {
+                    WeChat.initImage().upload();
+                });
+            }
+        });
+
+
+        form.on('submit(btnSubmit)', function (data) {
+            var params = data.field;
+
+
+            var stu_name = document.forms["test"]["stu_name"].value;
+            var stu_age = document.forms["test"]["stu_age"].value;
+            var stu_address = document.forms["test"]["stu_address"].value;
+            var stu_birth = document.forms["test"]["stu_birth"].value;
+            var stu_sex = document.forms["test"]["stu_sex"].value;
+            var stu_phone = document.forms["test"]["stu_phone"].value;
+            var stu_email = document.forms["test"]["stu_email"].value;
+            var stu_faculty = document.forms["test"]["stu_faculty"].value;
+            var stu_class = document.forms["test"]["stu_class"].value;
+            var stuinfo = {
+                stu_name:stu_name,
+                stu_age:stu_age,
+                stu_address:stu_address,
+                stu_birth:stu_birth,
+                stu_sex:stu_sex,
+                stu_phone:stu_phone,
+                stu_email:stu_email,
+                stu_faculty:stu_faculty,
+                stu_class:stu_class,
+            };
+
+            var wechatForm = document.getElementById("test");
+            var formData = new FormData(wechatForm);
+
+            formData.append("data", params);
+            formData.append("stuinfo" ,stuinfo)
+            console.log(formData)
+            $.ajax({
+                type: 'POST',
+                url: '/psinfo/update/student', //请求路径
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false, // 当设置为true的时候,jquery ajax提交的时候不会序列化data，而是直接使用data
+                success: function (data) {
+                    if (data.code === 200) {
+                        // layer.msg(data.data, {icon: 1});
+                        layer.msg("保存成功");
+
+                    } else {
+                        layer.msg("保存失败");
+                    }
+
+                }
+            });
+            return false;
+        });
+    });
+
+
+</script>
+</body>
+
+</html>

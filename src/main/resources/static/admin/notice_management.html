@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <title>Title</title>
+</head>
+<body>
+<script src="../layui/layui.all.js" charset="utf-8"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述 JS 路径需要改成你本地的 -->
+
+<table class="layui-hide" id="test" lay-filter="test"></table>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-form-item layui-input-inline" id="btn">
+        <div class="layui-inline">
+            <div class="layui-input-inline">
+                <input  id="search" lay-verify="required|phone" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <select id="searchtype" name="modules" lay-verify="required" lay-search="">
+                    <option value="">通知类型</option>
+                    <option value="教工通知">教工通知</option>
+                    <option value="学校通知">学校通知</option>
+                    <option value="班级通知">班级通知</option>
+                    <option value="通知公告">通知公告</option>
+                </select>
+            </div>
+            <button type="button" class="layui-btn" data-type="reload">搜索</button>
+        </div>
+    </div>
+    <div class="layui-input-inline layui-form-item" id="add">
+        <div class="layui-inline">
+            <button type="button" class="layui-btn" lay-event="add">添加</button>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="verify">审核</a>
+<!--    //删除按钮-->
+    <a class=" layui-btn-sm" style="cursor: pointer" lay-event="del" >
+        <i class="layui-icon layui-icon-delete" style="font-size: 30px; color: #979494;"></i>
+    </a>
+
+</script>
+
+<script>
+    layui.use('table', function(){
+        var table = layui.table;
+        var layer = layui.layer;
+        var $ = layui.$
+        const tableIns = table.render({
+            elem: '#test'
+            ,id:'test'
+            ,url:'/ntc/select/all'
+            ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            ,defaultToolbar: ['filter', 'exports', 'print']
+            ,title: '用户数据表'
+
+            ,cols: [[
+                {field:'notice_id', title:'ID', minWidth:80, fixed: 'left', unresize: true, sort: true}
+                ,{field:'notice_title', event:'detail', style:'cursor: pointer;', title:'标题', minWidth:120}
+                ,{field:'notice_content', title:'内容', minWidth:150}
+                ,{field:'notice_user', title:'发布者', minWidth:80}
+                ,{field:'notice_type', title:'类型', minWidth:100}
+                ,{field:'notice_time', title:'时间', minWidth:100}
+                ,{field:'notice_state', title:'状态',templet: '#state',align:'center'}
+                ,{field: 'right', fixed: 'right',title:'操作', toolbar: '#barDemo', width:150, align:'center'}
+            ]]
+            ,page: true
+        });
+
+        //搜索
+        var $ = layui.$, active = {
+            reload: function(){
+                var search = $('#search');
+                var searchtype =$('#searchtype')
+                console.log("search"+search.val());
+                console.log("searchtype"+searchtype.val());
+                //执行重载
+                layui.table.reload('test', {
+                    url:'/ntc/search'
+                    ,response: {
+                        statusName: 'code' //规定数据状态的字段名称，默认：code
+                        ,statusCode: 200 //规定成功的状态码，默认：0
+                    }
+                    ,where: {
+                        search: search.val(),
+                        searchtype:searchtype.val()
+                    }
+                },'data');
+            }
+        };
+        $('body').on('click', '#btn .layui-btn', function() {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+
+        //添加
+        table.on('toolbar(test)', function(obj){
+
+            switch(obj.event){
+                case 'add':
+                    layer.open({
+                        type: 2,
+                        content: 'notice_add.html',
+                        area: ['800px', '500px'],
+                        title: false,
+                        btn: ['确定', "取消"],
+                        yes: function (index, layero) {
+                            const iframeWindow = window['layui-layer-iframe' + index]
+                                , submitID = 'user-add-save'
+                                , submit = layero.find('iframe').contents().find('#' + submitID);
+
+                            //监听提交
+                            iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+                                const field = data.field; //获取提交的字段
+
+                                $.ajax({
+                                    url:'/ntc/insert',
+                                    type: 'POST',
+                                    data: field,
+                                    success: function (res){
+                                        if (res.code === 200) {
+                                            tableIns.reload();
+                                            layer.close(index);
+                                            layer.msg('添加成功');
+                                        } else {
+                                            layer.msg('添加失败');
+                                        }
+                                    },
+                                    error: function (error){
+                                        layer.msg('添加失败');
+                                    }
+                                });
+                            });
+
+                            submit.trigger('click');
+                        }
+                    });
+                    break;
+            }
+        });
+
+        //监听行工具事件 审核，删除
+        table.on('tool(test)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'verify'){
+                layer.open({
+                    type:2,
+                    content:'notice_verify.html',
+                    area: ['700px', '500px'],
+                    anim:3 ,
+                    btn: ['确定', "取消"],
+                    yes: function (index, layero) {
+                        const iframeWindow = window['layui-layer-iframe' + index]
+                            , submitID = 'user-add-save'
+                            , submit = layero.find('iframe').contents().find('#' + submitID);
+
+                        //监听提交
+                        iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+                            const field = data.field; //获取提交的字段
+                            console.log(data.field)
+
+                            $.ajax({
+                                url:'/ntc/update',
+                                type: 'POST',
+                                data: field,
+
+                                success: function (res){
+                                    if (res.code === 200) {
+                                        layer.close(index);
+                                        layer.msg('审核成功');
+                                        tableIns.reload();
+                                    } else {
+                                        layer.msg('审核失败');
+                                    }
+                                },
+                                error: function (error){
+                                    layer.msg('审核失败');
+                                }
+
+                            });
+                        });
+
+                        submit.trigger('click');
+                    },
+                    success: function (layero, index) {
+                        render_form(layero, index, data)
+                    }
+                });
+            }else if (obj.event === 'del') { //删除
+                layer.confirm('真的删除行么', function (index) {
+                    // obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                    //向服务端发送删除指令
+                    $.ajax({
+                        url: '/ntc/delete',
+                        type: 'POST',
+                        data: {'notice_id': data.notice_id},
+                        success: function (res) {
+                            console.log(res);
+                            layer.close(index);
+                            if (res.code === 200) {
+                                layer.msg('删除成功');
+                                tableIns.reload();
+                            } else {
+                                layer.msg('删除失败');
+                            }
+                        },
+                        error: function (error) {
+                            layer.close(index)
+                            layer.msg('http请求错误')
+                        }
+                    });
+                });
+            }else if(obj.event === 'detail'){
+                layer.open({
+                    type:2,
+                    content:'message_detail.html',
+                    area: ['700px', '500px'],
+                    anim:3 ,
+                    success: function (layero, index) {
+                        render_form(layero, index, data)
+                    }
+                });
+            }
+            function render_form(layero, index, data) {
+                const body = layer.getChildFrame('body' , index);
+                body.find('#notice_id').val(data.notice_id);
+                body.find('#notice_content').val(data.notice_content);
+                body.find('#notice_user').val(data.notice_user);
+                body.find('#notice_type').val(data.notice_type);
+                body.find('#notice_title').val(data.notice_title);
+                body.find('#notice_time').val(data.notice_time);
+            }
+        });
+
+
+
+    });
+</script>
+<script type="text/html" id="state">
+    {{#  if(d.notice_state === '通过'){ }}
+    <button type="button" class="layui-btn  layui-btn-xs">{{ d.notice_state }}</button>
+    {{#  } else if(d.notice_state === '拒绝'){ }}
+    <button type="button" class="layui-btn  layui-btn-danger  layui-btn-xs">{{ d.notice_state }}</button>
+    {{#  }else{ }}
+    <button type="button" class="layui-btn layui-btn-primary layui-btn-xs">{{ d.notice_state }}</button>
+    {{#  } }}
+
+</script>
+</body>
+</html>

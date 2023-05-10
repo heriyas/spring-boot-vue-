@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <title>Title</title>
+</head>
+<body>
+<script src="../layui/layui.all.js" charset="utf-8"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述 JS 路径需要改成你本地的 -->
+
+<table class="layui-hide" id="test" lay-filter="test"></table>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-form-item layui-input-inline" id="btn">
+        <div class="layui-inline">
+            <div class="layui-input-inline">
+                <input  id="user_id" placeholder="请输入id" lay-verify="required|phone" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <select id="user_faculty" name="modules" lay-verify="required" lay-search="">
+                    <option value="">院系或职位</option>
+                    <option value="管理员">管理员</option>
+                    <option value="教师">教师</option>
+                    <option value="外国语学院">外国语学院</option>
+                    <option value="计算机科学与技术学院">计算机科学与技术学院</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select id="cough" name="modules" lay-verify="required" lay-search="">
+                    <option value="">咳嗽</option>
+                    <option value="有">有</option>
+                    <option value="无">无</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select id="fever" name="modules" lay-verify="required" lay-search="">
+                    <option value="">发烧</option>
+                    <option value="有">有</option>
+                    <option value="无">无</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select id="temperature" name="modules" lay-verify="required" lay-search="">
+                    <option value="">温度</option>
+                    <option value="37.2">异常</option>
+                    <option value="0">无</option>
+                </select>
+            </div>
+            <button type="button" class="layui-btn" data-type="reload">搜索</button>
+        </div>
+    </div>
+    <div class="layui-input-inline layui-form-item" id="add">
+        <div class="layui-inline">
+                <button type="button" class="layui-btn" lay-event="add">添加</button>
+        </div>
+    </div>
+</script>
+
+<!--<script type="text/html" id="barDemo">-->
+<!--    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="verify">审核</a>-->
+<!--    &lt;!&ndash;    //删除按钮&ndash;&gt;-->
+<!--    <a class=" layui-btn-sm" style="cursor: pointer" lay-event="del" >-->
+<!--        <i class="layui-icon layui-icon-delete" style="font-size: 30px; color: #979494;"></i>-->
+<!--    </a>-->
+
+<!--</script>-->
+
+<script>
+    layui.use('table', function(){
+        var table = layui.table;
+        var layer = layui.layer;
+        var $ = layui.$
+        const tableIns = table.render({
+            elem: '#test'
+            ,id:'test'
+            ,url:'/clock/admin/select'
+            ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            ,defaultToolbar: ['filter', 'exports', 'print']
+            ,response: {
+                statusName: 'code' //规定数据状态的字段名称，默认：code
+                ,statusCode: 200 //规定成功的状态码，默认：0
+            }
+            ,title: '打卡信息'
+
+            ,cols: [[
+                {field:'clock_id', title:'clock_id', minWidth:30, hide:true,fixed: 'left', unresize: true, sort: true}
+                ,{field:'user_id', title:'ID',unresize: true, minWidth:120}
+                ,{field:'user_name', title:'姓名',unresize: true, minWidth:150}
+                ,{field:'user_faculty', title:'职位或院系',unresize: true, minWidth:80,sort:true}
+                ,{field:'user_class', title:'班级',unresize: true, minWidth:100 ,sort:true}
+                ,{field:'clock_time', unresize: true,title:'打卡时间'}
+                ,{field:'clock_time_type', title:'时间段'}
+                ,{field:'clock_area', title:'位置' ,unresize: true}
+                ,{field:'temperature', title:'体温',unresize: true,templet: '#temperature_state',align:'center'}
+                ,{field:'cough', title:'咳嗽',unresize: true,templet: '#cough_state',align:'center'}
+                ,{field:'fever', title:'发烧',unresize: true,templet: '#fever_state',align:'center'}
+            ]]
+            ,page: true
+        });
+
+        //搜索
+        var $ = layui.$, active = {
+            reload: function(){
+                var user_id = $('#user_id');
+                var user_faculty =$('#user_faculty')
+                var cough =$('#cough')
+                var fever =$('#fever')
+                var temperature =$('#temperature')
+                console.log("user_id"+user_id.val());
+                console.log("user_faculty"+user_faculty.val());
+                //执行重载
+                layui.table.reload('test', {
+                    url:'/clock/admin/search'
+                    ,response: {
+                        statusName: 'code' //规定数据状态的字段名称，默认：code
+                        ,statusCode: 200 //规定成功的状态码，默认：0
+                    }
+                    ,where: {
+                        user_id: user_id.val(),
+                        user_faculty:user_faculty.val(),
+                        cough:cough.val(),
+                        fever:fever.val(),
+                        temperature:temperature.val()
+
+                    }
+                },'data');
+            }
+        };
+        $('body').on('click', '#btn .layui-btn', function() {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+
+        //添加
+        table.on('toolbar(test)', function(obj){
+
+            switch(obj.event){
+                case 'add':
+                    layer.open({
+                        type: 2,
+                        content: 'clock_add.html',
+                        area: ['800px', '500px'],
+                        title: false,
+                        btn: ['确定', "取消"],
+                        yes: function (index, layero) {
+                            const iframeWindow = window['layui-layer-iframe' + index]
+                                , submitID = 'user-add-save'
+                                , submit = layero.find('iframe').contents().find('#' + submitID);
+
+                            //监听提交
+                            iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+                                const field = data.field; //获取提交的字段
+
+                                $.ajax({
+                                    url:'/clock/teacher/doclock',
+                                    type: 'POST',
+                                    data: field,
+                                    success: function (res){
+                                        if (res.code === 200) {
+                                            tableIns.reload();
+                                            layer.close(index);
+                                            layer.msg('添加成功');
+                                        } else {
+                                            layer.msg('添加失败');
+                                        }
+                                    },
+                                    error: function (error){
+                                        layer.msg('添加失败');
+                                    }
+                                });
+                            });
+
+                            submit.trigger('click');
+                        }
+                    });
+                    break;
+            }
+        });
+        //
+        // //监听行工具事件 审核，删除
+        // table.on('tool(test)', function(obj){
+        //     var data = obj.data;
+        //     if(obj.event === 'verify'){//审核
+        //         layer.open({
+        //             type:2,
+        //             content:'leave_apply_verify.html',
+        //             area: ['700px', '500px'],
+        //             anim:3 ,
+        //             btn: ['确定', "取消"],
+        //             yes: function (index, layero) {
+        //                 const iframeWindow = window['layui-layer-iframe' + index]
+        //                     , submitID = 'user-add-save'
+        //                     , submit = layero.find('iframe').contents().find('#' + submitID);
+        //
+        //                 //监听提交
+        //                 iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+        //                     const field = data.field; //获取提交的字段
+        //                     console.log(data.field)
+        //
+        //                     $.ajax({
+        //                         url:'/leave/admin/update',
+        //                         type: 'POST',
+        //                         data: field,
+        //
+        //                         success: function (res){
+        //                             if (res.code === 200) {
+        //                                 layer.close(index);
+        //                                 layer.msg('审核成功');
+        //                                 tableIns.reload();
+        //                             } else {
+        //                                 layer.msg('审核失败');
+        //                             }
+        //                         },
+        //                         error: function (error){
+        //                             layer.msg('审核失败');
+        //                         }
+        //
+        //                     });
+        //                 });
+        //
+        //                 submit.trigger('click');
+        //             },
+        //             success: function (layero, index) {
+        //                 render_form(layero, index, data)
+        //             }
+        //         });
+        //     }else if (obj.event === 'del') { //删除
+        //         layer.confirm('真的删除行么', function (index) {
+        //             // obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+        //             //向服务端发送删除指令
+        //             $.ajax({
+        //                 url: '/leave/admin/delete',
+        //                 type: 'POST',
+        //                 data: {'apply_id': data.apply_id},
+        //                 success: function (res) {
+        //                     console.log(res);
+        //                     layer.close(index);
+        //                     if (res.code === 200) {
+        //                         layer.msg('删除成功');
+        //                         tableIns.reload();
+        //                     } else {
+        //                         layer.msg('删除失败');
+        //                     }
+        //                 },
+        //                 error: function (error) {
+        //                     layer.close(index)
+        //                     layer.msg('http请求错误')
+        //                 }
+        //             });
+        //         });
+        //     }
+        //     function render_form(layero, index, data) {
+        //         const body = layer.getChildFrame('body' , index);
+        //         body.find('#apply_id').val(data.apply_id);
+        //         body.find('#stu_id').val(data.stu_id);
+        //         body.find('#stu_name').val(data.stu_name);
+        //         body.find('#stu_faculty').val(data.stu_faculty);
+        //         body.find('#stu_class').val(data.stu_class);
+        //         body.find('#reason').val(data.reason);
+        //         body.find('#travel').val(data.travel);
+        //         body.find('#leave_time').val(data.leave_time);
+        //         body.find('#back_time').val(data.back_time);
+        //     }
+        // });
+
+
+
+    });
+</script>
+<script type="text/html" id="cough_state">
+    {{#  if(d.cough === '无'){ }}
+    <button type="button" class="layui-btn layui-btn-primary layui-btn-xs">{{ d.cough }}</button>
+    {{#  } else if(d.cough === '有'){ }}
+    <button type="button" class="layui-btn  layui-btn-danger  layui-btn-xs">{{ d.cough }}</button>
+    {{#  }else{ }}
+    {{#  } }}
+
+</script>
+<script type="text/html" id="fever_state">
+    {{#  if(d.fever === '无'){ }}
+    <button type="button" class="layui-btn layui-btn-primary layui-btn-xs">{{ d.fever }}</button>
+    {{#  } else if(d.fever === '有'){ }}
+    <button type="button" class="layui-btn  layui-btn-danger  layui-btn-xs">{{ d.fever }}</button>
+    {{#  }else{ }}
+    {{#  } }}
+
+</script>
+<script type="text/html" id="temperature_state">
+    {{#  if(d.temperature < 37.2){ }}
+    <button type="button" class="layui-btn layui-btn-primary layui-btn-xs">{{ d.temperature }}</button>
+    {{#  } else if(d.temperature > 37.2){ }}
+    <button type="button" class="layui-btn  layui-btn-danger  layui-btn-xs">{{ d.temperature }}</button>
+    {{#  }else{ }}
+    {{#  } }}
+
+</script>
+</body>
+</html>

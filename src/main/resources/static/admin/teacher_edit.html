@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+
+</head>
+<body>
+<div class="layui-container">
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>审核信息</legend>
+    </fieldset>
+    <form class="layui-form layui-form-pane" action="">
+        <div class="layui-form-item" >
+            <label class="layui-form-label">ID</label>
+            <div class="layui-input-inline">
+                <input id="teacher_id" type="text" name="teacher_id" class="layui-input" required>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <label class="layui-form-label">姓名</label>
+            <div class="layui-input-inline">
+                <input id="teacher_name" type="text" name="teacher_name" class="layui-input" required>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <label class="layui-form-label">性别</label>
+            <div class="layui-input-inline layui-input" >
+                <input type="radio"  name="teacher_sex" value="男" title="男" required>
+                <input type="radio" name="teacher_sex" value="女" title="女" required>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">年龄</label>
+            <div class="layui-input-inline">
+                <input id="teacher_age" type="text" name="teacher_age" class="layui-input" required>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">地址</label>
+            <div class="layui-input-block">
+                <input id="teacher_address" type="text" name="teacher_address" class="layui-input" required>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">出生年月</label>
+            <div class="layui-input-inline">
+                <input id="teacher_birth" type="text" name="teacher_birth" class="layui-input"  placeholder="yyyy-MM-dd">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">电话</label>
+            <div class="layui-input-inline">
+                <input id="teacher_phone" type="text" name="teacher_phone" class="layui-input" required>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">邮箱</label>
+            <div class="layui-input-inline">
+                <input id="teacher_email" type="text" name="teacher_email" class="layui-input" required>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">院系或职位</label>
+            <div class="layui-input-inline">
+                <select id="teacher_faculty" name="teacher_faculty" lay-verify="required" lay-search="">
+                    <option value="">院系</option>
+                    <option value="外国语学院">外国语学院</option>
+                    <option value="计算机科学与技术学院">计算机科学与技术学院</option>
+                    <option value="管理员">管理员</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item" >
+            <label class="layui-form-label">权限</label>
+            <div class="layui-input-block layui-input" >
+                <input type="radio"  name="role_id" value="1" title="管理员" required>
+                <input type="radio" name="role_id" value="2" title="老师" required>
+            </div>
+        </div>
+        <div class="layui-form-item layui-hide">
+            <button type="button" lay-submit="" lay-filter="user-add-save" id="user-add-save" class="layui-btn">
+                确认
+            </button>
+        </div>
+    </form>
+
+    <!--    <div class="layui-form layui-form-pane" >-->
+    <!--        <div class="layui-form-item" pane>-->
+    <!--            <div class="layui-inline">-->
+    <!--                <label class="layui-form-label">id</label>-->
+    <!--                <div class="layui-input-inline">-->
+    <!--                    <label>-->
+    <!--                        <input id="notice_id" type="text" required name="notice_id" class="layui-input" >-->
+    <!--                    </label>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--        </div>-->
+
+    <!--        <div class="layui-form-item" pane>-->
+    <!--            <div class="layui-inline">-->
+    <!--                <label class="layui-form-label">内容</label>-->
+    <!--                <div class="layui-input-inline">-->
+    <!--                    <label>-->
+    <!--                        <input id="notice_content" name="notice_content" class="layui-input"  >-->
+    <!--                    </label>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--        </div>-->
+
+    <!--        <div class="layui-form-item" pane>-->
+    <!--            <div class="layui-inline">-->
+    <!--                <label class="layui-form-label">发布者</label>-->
+    <!--                <div class="layui-input-inline">-->
+    <!--                    <label>-->
+    <!--                        <input id="notice_user" type="text" name="notice_user" class="layui-input" >-->
+    <!--                    </label>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--        <div class="layui-form-item" pane>-->
+    <!--            <div class="layui-inline">-->
+    <!--                <label class="layui-form-label">通知类型</label>-->
+    <!--                <div class="layui-input-inline">-->
+    <!--                    <label>-->
+    <!--                        <input id="notice_type" type="text" name="notice_type" class="layui-input" >-->
+    <!--                    </label>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--        <div class="layui-form-item" pane>-->
+    <!--            <label class="layui-form-label">审核</label>-->
+    <!--            <div class="layui-input-block">-->
+    <!--                <input type="radio" name="notice_state" value="通过" title="通过" checked="">-->
+    <!--                <input type="radio" name="notice_state" value="拒绝" title="拒绝">-->
+    <!--            </div>-->
+    <!--        </div>-->
+
+    <!--        <div class="layui-form-item layui-hide">-->
+    <!--            <button type="button" lay-submit="" lay-filter="user-add-save" id="user-add-save" class="layui-btn">-->
+    <!--                确认-->
+    <!--            </button>-->
+    <!--        </div>-->
+
+    <!--    </div>-->
+
+</div>
+
+<script src="../layui/layui.all.js"></script>
+<script>
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        //年月选择器
+        laydate.render({
+            elem: '#teacher_birth'
+            ,trigger:'click'
+        });
+    });
+</script>
+</body>
+</html>

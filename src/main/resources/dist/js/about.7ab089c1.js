@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkvue_elment"]=self["webpackChunkvue_elment"]||[]).push([[443],{9986:function(e,n,u){u.r(n),u.d(n,{default:function(){return f}});var t=u(8473);const a={class:"about"},r=(0,t._)("h1",null,"This is an about page",-1),s=[r];function c(e,n){return(0,t.wg)(),(0,t.iD)("div",a,s)}var i=u(9533);const l={},o=(0,i.Z)(l,[["render",c]]);var f=o}}]);
+//# sourceMappingURL=about.7ab089c1.js.map

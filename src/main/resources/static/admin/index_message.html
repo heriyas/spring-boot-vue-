@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <title>Title</title>
+</head>
+<script src="../layui/layui.all.js" charset="utf-8"></script>
+<script src="../assets/js/jquery.js"></script>
+<script src="../js/echarts.js"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述 JS 路径需要改成你本地的 -->
+<body>
+
+<div class="layui-row" >
+    <div class="layui-col-xs12 layui-col-md8" style="padding-top: 30px">
+        <div class="grid-demo grid-demo-bg1">
+            <div >
+                <div class="layui-row layui-col-space15" style="padding-left: 10px;padding-right: 10px">
+                    <div class="layui-col-md4" >
+                        <div class="layui-card" >
+                            <div class="layui-card-body layui-bg-gray" style="height: 100px">
+                                <div>日志数</div>
+                                <div id="log_num"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md4">
+                        <div class="layui-card">
+                            <div class="layui-card-body layui-bg-gray" style="height: 100px">
+                                <div>系统异常次数</div>
+                                <div id="err_num"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md4">
+                        <div class="layui-card">
+                            <div class="layui-card-body layui-bg-gray" style="height: 100px">
+                                <div>用户数</div>
+                                <div id="user_num"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="layui-row layui-col-space15 "style="padding-left: 10px;padding-right: 10px">
+                    <div class="layui-col-md4">
+                        <div class="layui-card">
+                            <div class="layui-card-body layui-bg-gray" style="height: 100px">
+                                <div>待审核通知数</div>
+                                <div id="waiting_notice_num"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md4">
+                        <div class="layui-card">
+                            <div class="layui-card-body layui-bg-gray" style="height: 100px">
+                                <div>待审核申请数</div>
+                                <div id="waiting_apply_num"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md4">
+                        <div class="layui-card">
+                            <div class="layui-card-body layui-bg-gray" style="height: 100px">
+                                <div>核酸检测报告</div>
+                                <div id="report_num"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <div class="layui-col-xs6 layui-col-md4" style="padding-top: 20px">
+        <div class="grid-demo" style="padding-left: 10px;padding-right:10px">
+            <table class="layui-hide" id="test" lay-filter="test"></table>
+        </div>
+    </div>
+
+</div>
+<div class="layui-row" style="padding-top: 20px" >
+<!--    <div class="layui-col-xs12 layui-col-md12" style="padding-left: 10px;padding-right:10px;padding-top: 10px">-->
+<!--        <div id="main" style="width: 1000px;height:500px;"></div>-->
+<!--    </div>-->
+    <div class="layui-col-xs6">
+        <div class="grid-demo grid-demo-bg1">
+            <div id="main" style="width: 715px;height:500px;"></div>
+        </div>
+    </div>
+    <div class="layui-col-xs6">
+        <div class="grid-demo">
+            <div id="clock" style="width: 715px;height:500px;"></div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+</body>
+<script>
+    layui.use('table', function(){
+        var table = layui.table;
+        var layer = layui.layer;
+        table.render({
+            height: 255
+            ,elem: '#test'
+            ,id:'test'
+            ,url:'/ntc/select/index'
+            ,skin:'nob'
+            ,cols: [[
+                {field:'notice_title',title:'标题',fixed:'left',event:'detail',style:'cursor: pointer;',unresize: true}
+                ,{field:'notice_time',fixed:'right',unresize: true,align:'right'}
+            ]]
+        });
+
+        table.on('tool(test)', function(obj){
+            var data = obj.data;
+            console.log(data.notice_title)
+            if(obj.event === 'detail'){
+                layer.open({
+                    type:2,
+                    content:'message_detail.html',
+                    area: ['700px', '500px'],
+                    anim:3 ,
+                    success: function (layero, index) {
+                        render_form(layero, index, data)
+                    }
+                });
+            }
+            function render_form(layero, index, data) {
+                const body = layer.getChildFrame('body' , index);
+                body.find('#notice_content').val(data.notice_content);
+                body.find('#notice_user').val(data.notice_user);
+                body.find('#notice_title').val(data.notice_title);
+                body.find('#notice_time').val(data.notice_time);
+            }
+        });
+    });
+</script>
+<script>
+    $(function () {
+        $.ajax({
+            url: '/select/num',
+            type: 'POST',
+            dataType: "json",
+            success: function (res) {
+                document.getElementById("log_num").innerHTML =  res.data.log_num;
+                document.getElementById("err_num").innerHTML =  res.data.err_num;
+                document.getElementById("user_num").innerHTML =  res.data.user_num;
+                document.getElementById("waiting_notice_num").innerHTML =  res.data.waiting_notice_num;
+                document.getElementById("waiting_apply_num").innerHTML =  res.data.waiting_apply_num;
+                document.getElementById("report_num").innerHTML =  res.data.report_num;
+            }
+        });
+    })
+</script>
+<script>
+
+    var option1 = {
+        title: {
+            text: '离校',
+            left: 'center'
+        },
+        legend: {
+            data: []
+        },
+        xAxis: {
+            type: 'category',
+            data: []
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                data: [],
+                type: 'line',
+                smooth: true
+            }
+        ]
+    };
+    var myChart = echarts.init(document.getElementById('main'));
+    fetch("/select/map1").then(response => response.json()).then(res => {
+
+        const leave_time = res.map(v => v.leave_time)
+        option1.xAxis.data = leave_time
+        console.log(JSON.stringify(res))
+
+        const leave_school_num = res.map(v => v.leave_school_num)
+        option1.series[0].data = leave_school_num
+        option1.legend.data[0] = "离校"
+
+        res.forEach(item => {
+            console.log(item)
+            option1.series[0].data.push({name: item.leave_school_num, value: item.leave_school_num})
+        })
+        myChart.setOption(option1);
+
+        // console.log()
+    })
+</script>
+<script>
+    var option2 = {
+        title: {
+            text: '打卡',
+            left: 'center'
+        },
+        legend: {
+            data: []
+        },
+        xAxis: {
+            type: 'category',
+            data: []
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                data: [],
+                type: 'bar',
+                smooth: true
+            }
+        ]
+    };
+    var my = echarts.init(document.getElementById('clock'));
+    fetch("/select/map2").then(response => response.json()).then(res => {
+
+        const clock_time = res.map(v => v.clock_time)
+        option2.xAxis.data = clock_time
+
+        const clock_num = res.map(v => v.clock_num)
+        option2.series[0].data = clock_num
+        option2.legend.data[0] = ""
+        res.forEach(item => {
+            console.log(item)
+            option2.series[0].data.push({name: item.clock_num, value: item.clock_num})
+        })
+        my.setOption(option2);
+
+        // console.log()
+    })
+</script>
+</html>
